@@ -1,0 +1,410 @@
+name:"PerceptualLossGuidedDehazing"
+# Define data input, modified from imagenet
+# Haze data for training
+layer {
+  name: "data"
+  type: "Data"
+  top: "data"
+  top: "ignorelabel1"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    scale: 0.00390625 # scale to 0-1
+  }
+  data_param {
+    source: "/home/guanlong/Desktop/single-image-dehazing/data1k/train/reside_train_haze_lmdb"
+    batch_size: 8
+    backend: LMDB
+  }
+}
+
+# Clean data for training
+layer {
+  name: "clean"
+  type: "Data"
+  top: "clean"
+  top: "ignorelabel2"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    scale: 0.00390625 # scale to 0-1
+  }
+  data_param {
+    source: "/home/guanlong/Desktop/single-image-dehazing/data1k/train/reside_train_clean_lmdb"
+    batch_size: 8
+    backend: LMDB
+  }
+}
+
+# Haze data for val
+layer {
+  name: "data"
+  type: "Data"
+  top: "data"
+  top: "ignorelabel1"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    scale: 0.00390625 # scale to 0-1
+  }
+  data_param {
+    source: "/home/guanlong/Desktop/single-image-dehazing/data1k/val/reside_val_haze_lmdb"
+    batch_size: 8
+    backend: LMDB
+  }
+}
+
+# Clean data for val
+layer {
+  name: "clean"
+  type: "Data"
+  top: "clean"
+  top: "ignorelabel2"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    scale: 0.00390625 # scale to 0-1
+  }
+  data_param {
+    source: "/home/guanlong/Desktop/single-image-dehazing/data1k/val/reside_val_clean_lmdb"
+    batch_size: 8
+    backend: LMDB
+  }
+}
+
+# Ignore labels
+layer {
+  name: "silence"
+  type: "Silence"
+  bottom: "ignorelabel1"
+  bottom: "ignorelabel2"
+}
+
+# Network def
+layer {
+  name: "data_input_0_split"
+  type: "Split"
+  bottom: "data"
+  top: "data_input_0_split_0"
+  top: "data_input_0_split_1"
+  phase: TRAIN
+}
+
+layer {
+  name: "conv1"
+  type: "Convolution"
+  bottom: "data_input_0_split_0"
+  top: "conv1"
+  # learning rate multipliers for the filters
+  param {
+    lr_mult: 0.10000000149
+  }
+  # learning rate multipliers for the bias
+  param {
+    lr_mult: 1.0
+  }
+  
+  phase: TRAIN
+  convolution_param {
+    num_output: 3
+    kernel_size: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.0010000000475
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.0
+    }
+  }
+}
+
+layer {
+  name: "relu1"
+  type: "ReLU"
+  bottom: "conv1"
+  top: "conv1"
+  phase: TRAIN
+}
+
+layer {
+  name: "conv1_relu1_0_split"
+  type: "Split"
+  bottom: "conv1"
+  top: "conv1_relu1_0_split_0"
+  top: "conv1_relu1_0_split_1"
+  top: "conv1_relu1_0_split_2"
+  phase: TRAIN
+}
+
+layer {
+  name: "conv2"
+  type: "Convolution"
+  bottom: "conv1_relu1_0_split_0"
+  top: "conv2"
+  param {
+    lr_mult: 0.10000000149
+  }
+  param {
+    lr_mult: 1.0
+  }
+  phase: TRAIN
+  convolution_param {
+    num_output: 3
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.0010000000475
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.0
+    }
+  }
+}
+
+layer {
+  name: "relu2"
+  type: "ReLU"
+  bottom: "conv2"
+  top: "conv2"
+  phase: TRAIN
+}
+
+layer {
+  name: "conv2_relu2_0_split"
+  type: "Split"
+  bottom: "conv2"
+  top: "conv2_relu2_0_split_0"
+  top: "conv2_relu2_0_split_1"
+  top: "conv2_relu2_0_split_2"
+  phase: TRAIN
+}
+
+layer {
+  name: "Concat1"
+  type: "Concat"
+  bottom: "conv1_relu1_0_split_1"
+  bottom: "conv2_relu2_0_split_0"
+  top: "Concat1"
+  phase: TRAIN
+  concat_param {
+    axis: 1
+  }
+}
+
+layer {
+  name: "conv3"
+  type: "Convolution"
+  bottom: "Concat1"
+  top: "conv3"
+  param {
+    lr_mult: 0.10000000149
+  }
+  param {
+    lr_mult: 1.0
+  }
+  phase: TRAIN
+  convolution_param {
+    num_output: 3
+    pad: 2
+    kernel_size: 5
+    weight_filler {
+      type: "gaussian"
+      std: 0.0010000000475
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.0
+    }
+  }
+}
+
+layer {
+  name: "relu3"
+  type: "ReLU"
+  bottom: "conv3"
+  top: "conv3"
+  phase: TRAIN
+}
+
+layer {
+  name: "conv3_relu3_0_split"
+  type: "Split"
+  bottom: "conv3"
+  top: "conv3_relu3_0_split_0"
+  top: "conv3_relu3_0_split_1"
+  phase: TRAIN
+}
+
+layer {
+  name: "Concat2"
+  type: "Concat"
+  bottom: "conv2_relu2_0_split_1"
+  bottom: "conv3_relu3_0_split_0"
+  top: "Concat2"
+  phase: TRAIN
+  concat_param {
+    axis: 1
+  }
+}
+
+layer {
+  name: "conv4"
+  type: "Convolution"
+  bottom: "Concat2"
+  top: "conv4"
+  param {
+    lr_mult: 0.10000000149
+  }
+  param {
+    lr_mult: 1.0
+  }
+ phase: TRAIN
+  convolution_param {
+    num_output: 3
+    pad: 3
+    kernel_size: 7
+    weight_filler {
+      type: "gaussian"
+      std: 0.0010000000475
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.0
+    }
+  }
+}
+
+layer {
+  name: "relu4"
+  type: "ReLU"
+  bottom: "conv4"
+  top: "conv4"
+  phase: TRAIN
+}
+layer {
+  name: "Concat3"
+  type: "Concat"
+  bottom: "conv1_relu1_0_split_2"
+  bottom: "conv2_relu2_0_split_2"
+  bottom: "conv3_relu3_0_split_1"
+  bottom: "conv4"
+  top: "Concat3"
+  phase: TRAIN
+  concat_param {
+    axis: 1
+  }
+}
+
+layer {
+  name: "conv5"
+  type: "Convolution"
+  bottom: "Concat3"
+  top: "conv5"
+  param {
+    lr_mult: 0.10000000149
+  }
+  param {
+    lr_mult: 1.0
+  }
+  phase: TRAIN
+  convolution_param {
+    num_output: 3
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.0010000000475
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.0
+    }
+  }
+}
+
+layer {
+  name: "relu5"
+  type: "ReLU"
+  bottom: "conv5"
+  top: "K"
+  phase: TRAIN
+}
+
+layer {
+  name: "K_relu5_0_split"
+  type: "Split"
+  bottom: "K"
+  top: "K_relu5_0_split_0"
+  top: "K_relu5_0_split_1"
+  phase: TRAIN
+}
+
+layer {
+  name: "prod"
+  type: "Eltwise"
+  bottom: "data_input_0_split_1"
+  bottom: "K_relu5_0_split_0"
+  top: "prod"
+  phase: TRAIN
+  eltwise_param {
+    operation: PROD
+  }
+}
+
+layer {
+  name: "eltwise_layer"
+  type: "Eltwise"
+  bottom: "prod"
+  bottom: "K_relu5_0_split_1"
+  top: "eltwise_layer"
+  phase: TRAIN
+  eltwise_param {
+    operation: SUM
+    coeff: 1.0
+    coeff: -1.0
+  }
+}
+
+layer {
+  name: "sum"
+  type: "Power"
+  bottom: "eltwise_layer"
+  top: "sum"
+  phase: TRAIN
+  power_param {
+    power: 1.0
+    scale: 1.0
+    shift: 1.0
+  }
+}
+
+layer {
+  name: "clip"
+  type: "ReLU"
+  bottom: "sum"
+  top: "sum"
+  phase: TRAIN
+}
+
+layer {
+  name: "loss"
+  type: "Python"
+  bottom: "sum"
+  bottom: "clean"
+  top: "loss"
+  loss_weight: 1.0
+  phase: TRAIN
+  python_param {
+    module: 'pyloss'  # python module name where your implementation is
+    layer: 'MSSSIML2'   # the name of the class implementation
+    param_str: '{"C1": 0.01, "C2": 0.03, "sigma": (0.5, 1., 2., 4., 8.), "alpha": 0.1}'
+  }
+}
+
