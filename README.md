@@ -14,6 +14,12 @@ See `code/pad_net`
 ## Domain adaptation for MaskRNN
 See `code/adapt_maskrnn`
 
+## Improving Object Detection in Haze
+See `code/iodh`
+
+## Sandeep and Satya's work
+see `code/sandeep_satya`
+
 ## Acknowledgements
 This collective study was initially performed as a team project effort in the Machine Learning course ([CSCE 633, Spring 2018](http://people.tamu.edu/~atlaswang/18CSCE633.html)) of CSE@TAMU, taught by Dr. Zhangyang Wang. We acknowledge the Texas A\&M High Performance Research Computing (HPRC) for providing a part of the computing resources used in this research.
 
