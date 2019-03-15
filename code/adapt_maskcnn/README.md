@@ -25,10 +25,9 @@ Two dehaze methods codes are provided in the corresponding folders. The readMEs 
 
 ### Download requirement
 
-* [Mask RCNN pre-trained model](https://github.com/matterport/Mask_RCNN/releases) or [DMASK RCNN1](https://drive.google.com/file/d/1zpLrFOzxctzucbOg2frILXEvEq0C26MO/view?usp=sharing), [DMASK RCNN2](https://drive.google.com/open?id=1qEjt6uRnd8kuF-rR4mMrF0rA4OPhSjSR)
-
+* [Mask RCNN pre-trained model](https://github.com/matterport/Mask_RCNN/releases) or [DMASK RCNN1](https://drive.google.com/file/d/1l4pZtVQMRvu5seC_EewTN-A8SWk3KVwK/view?usp=sharing)
 * [Haze image dataset](https://sites.google.com/view/reside-dehaze-datasets)
-* [MSCC dehazed dataset](https://drive.google.com/drive/folders/1DSy-RzRkEzXJwogjEkyuYq12u8J0ndl9?usp=sharing) (Need to put in to the same folder with the Haze image)
+* [MSCC dehazed dataset](https://drive.google.com/file/d/1ZeA_WNYhVNVOc1bKQCQq-AZ2ZwscACax/view?usp=sharing) (Need to put in to the same folder with the Haze image)
 
 If you want to train the model, you need to download the COCO dataset, the link can be found in the coco.py file. 
 
